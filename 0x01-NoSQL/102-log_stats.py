@@ -45,7 +45,7 @@ def get_stats():
     ])
     print("IPs:")
     for ip in ips:
-        print(f"{ip.get('ip')}: {ip.get('count')}")
+        print(f"\t{ip.get('ip')}: {ip.get('count')}")
 
 
 if __name__ == "__main__":
