@@ -5,11 +5,11 @@ changes all topics of a school document based on the name
 from typing import List
 
 
-def update_topics(mongo_collection, name: str, topics: List[str]):
+def update_topics(mongo_collection, name, topics):
     """
     changes topics based on given value
     """
     find = {"name": name}
     new = {"$set": {"topics": topics}}
 
-    updated = mongo_collection.update_one(find, new)
+    updated = mongo_collection.update_many(find, new)
