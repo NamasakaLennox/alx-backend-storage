@@ -30,18 +30,22 @@ def get_stats():
             }
         },
         {
-            "$sort": {
-                    "count": -1
+            "$sort": {"count": -1}
+        },
+        {
+            "$limit": 10
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "ip": "$_id",
+                "count": 1
             }
         }
     ])
     print("IPs:")
-    step = 0
     for ip in ips:
-        print(f"{ip['_id']}: {ip['count']}")
-        step += 1
-        if step == 10:
-            break
+        print(f"{ip.get('ip')}: {ip.get('count')}")
 
 
 if __name__ == "__main__":
