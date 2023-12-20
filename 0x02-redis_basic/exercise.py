@@ -8,6 +8,37 @@ from typing import Any, Callable, Optional, Union
 from functools import wraps
 
 
+def replay(fn: Callable):
+    """
+    displays the history of particular methods
+    """
+    r = redis.Redis()
+    func = fn.__qualname__
+
+    count = r.get(func)
+    try:
+        count = int(count.decode('utf-8'))
+    except Exception:
+        count = 0
+
+    print(f"{func} was called {count} times:")
+    inputs = r.lrange(f"{func}:inputs", 0, -1)
+    outputs = r.lrange(f"{func}:outputs", 0, -1)
+
+    for inp, out in zip(inputs, outputs):
+        try:
+            inp = inp.decode('utf-8')
+        except Exception:
+            inp = ''
+
+        try:
+            out = out.decode('utf-8')
+        except Exception:
+            out = ''
+
+        print(f"{func}(*{inp}) -> {out}")
+
+
 def count_calls(method: Callable) -> Callable:
     """
     counts the number of times a method has been called
