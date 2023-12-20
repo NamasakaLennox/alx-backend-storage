@@ -4,20 +4,38 @@ module for implementing redis in python
 """
 import redis
 from uuid import uuid4
-from typing import Union
+from typing import Any, Callable, Optional, Union
+from functools import wraps
+
+
+def count_calls(method: Callable) -> Callable:
+    """
+    counts the number of times a method has been called
+    """
+    key = method.__qualname__
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """
+        a wrapper decorator to return the wrapper
+        """
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class Cache:
     """
     A cache store class
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """
         class constructor
         """
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         takes a data argument and returns a string
@@ -27,7 +45,7 @@ class Cache:
 
         return key
 
-    def get(self, key, fn=None):
+    def get(self, key: str, fn: Optional[Callable] = None) -> Any:
         """
         gets data from store in their desired types
         """
@@ -36,16 +54,14 @@ class Cache:
             return value
         return fn(value)
 
-    def get_str(self, key):
+    def get_str(self, key: str) -> str:
         """
         parametize get with string
         """
-        fn = lambda d: d.decode("utf-8")
-        return self.get(key, fn)
+        return self.get(key, lambda d: d.decode("utf-8"))
 
-    def get_int(self, key):
+    def get_int(self, key: str) -> int:
         """
         add an int parameter
         """
-
         return self.get(key, int)
