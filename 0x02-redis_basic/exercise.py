@@ -26,3 +26,26 @@ class Cache:
         self._redis.set(key, data)
 
         return key
+
+    def get(self, key, fn=None):
+        """
+        gets data from store in their desired types
+        """
+        value = self._redis.get(key)
+        if not fn:
+            return value
+        return fn(value)
+
+    def get_str(self, key):
+        """
+        parametize get with string
+        """
+        fn = lambda d: d.decode("utf-8")
+        return self.get(key, fn)
+
+    def get_int(self, key):
+        """
+        add an int parameter
+        """
+
+        return self.get(key, int)
